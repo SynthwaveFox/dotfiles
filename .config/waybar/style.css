@@ -1,0 +1,171 @@
+/*
+ * Orange rice — recolored from Catppuccin Mocha
+ *   Hero accent : #ff8a00  (clock, active workspace, hover/urgent)
+ *   Info accent : #fab387  (peach — network / cpu / mem / battery / backlight / volume)
+ *   Base stays dark Mocha (#181825). Borders warmed to #4d443b.
+ */
+@import "mocha.css";
+* {
+  border: none;
+  border-radius: 0;
+  font-family: JetBrainsMonoNerdFont;
+  font-weight: bold;
+  font-size: 12px;
+  padding-top: 1px;
+  padding-bottom: 1px;
+  min-height: 0;
+}
+
+window#waybar {
+  background: #181825;
+  color: #f5e0dc;
+}
+tooltip {
+  background: #1e1e2e;
+  border-radius: 10px;
+  border-width: 2px;
+  border-style: solid;
+  border-color: #ff8a00;
+}
+
+#workspaces {
+  border-radius: 10px;
+  padding-right: 0px;
+  padding-left: 5px;
+  margin-left: 5px;
+}
+#workspaces button {
+  padding: 5px;
+  color: #6c5f52;
+  margin-right: 5px;
+  border-radius: 10px;
+}
+
+#workspaces button.active { color: #ff8a00; }
+
+#workspaces button.focused {
+  color: #ff8a00;
+  border-radius: 7px;
+  border-bottom: 2px solid #ff8a00;
+}
+#workspaces button.urgent {
+  color: #11111b;
+  background: #ff8a00;
+  border-radius: 10px;
+}
+
+#workspaces button:hover {
+  color: #ff8a00;
+  border: 2px solid #ff8a00;
+  background: transparent;
+}
+
+#custom-launcher {
+  background: #15121b;
+  padding-right: 7px;
+  padding-left: 7px;
+}
+
+#custom-exit,
+#custom-language,
+#custom-updates,
+#custom-caffeine,
+#clock,
+#battery,
+#wireplumber,
+#cpu,
+#memory,
+#network,
+#workspaces,
+#tray,
+#backlight {
+  padding: 0px 10px;
+  margin: 3px 0px;
+}
+
+#custom-exit {
+  color: #ff8a00;
+  border-radius: 0px 10px 10px 0;
+  margin-right: 10px;
+  border: 1px solid #4d443b;
+  border-top: 1px solid transparent;
+  border-bottom: 1px solid transparent;
+  border-right: 1px solid transparent;
+}
+#tray {
+  border-radius: 10px;
+  margin-right: 4px;
+  font-size: 19px;
+  border: 2px solid #fab387;
+}
+
+#custom-caffeine {
+  color: #89dceb;
+  border-radius: 10px 0px 0px 10px;
+  padding-right: 12px;
+}
+
+#custom-language { color: #f38ba8; }
+#custom-updates  { color: #f5c2e7; }
+
+#cpu {
+  color: #fab387;
+  border: 1px solid #4d443b;
+  border-top: 1px solid transparent;
+  border-bottom: 1px solid transparent;
+}
+
+#clock {
+  color: #ff8a00;
+  border-radius: 10px;
+  margin-right: 5px;
+}
+#network {
+  color: #fab387;
+  border-bottom-left-radius: 10px;
+  border-top-left-radius: 10px;
+  border: 1px solid #4d443b;
+  border-top: 1px solid transparent;
+  border-bottom: 1px solid transparent;
+  border-left: 1px solid transparent;
+}
+
+#wireplumber {
+  color: #fab387;
+  padding: 7px;
+  border: 1px solid #4d443b;
+  border-top: 1px solid transparent;
+  border-bottom: 1px solid transparent;
+}
+
+#memory {
+  color: #fab387;
+  border: 1px solid #4d443b;
+  border-top: 1px solid transparent;
+  border-bottom: 1px solid transparent;
+}
+
+#battery {
+  color: #fab387;
+  border: 1px solid #4d443b;
+  border-top: 1px solid transparent;
+  border-bottom: 1px solid transparent;
+}
+
+#battery.warning  { color: #ffb347; }
+#battery.critical { color: #f38ba8; }
+
+#backlight {
+  color: #fab387;
+  border: 1px solid #4d443b;
+  border-top: 1px solid transparent;
+  border-bottom: 1px solid transparent;
+}
+
+#custom-spotify {
+  background: #1B192A;
+  color: #cdd6f4;
+  border-radius: 10px;
+  padding-right: 5px;
+  margin-left: 4px;
+}
