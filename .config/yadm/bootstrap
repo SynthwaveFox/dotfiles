@@ -1,0 +1,13 @@
+#!/bin/bash
+set -e
+DOT="$HOME/.config/yadm/system"
+# system files
+sudo install -Dm644 "$DOT/etc/greetd/config.toml"        /etc/greetd/config.toml
+sudo install -Dm755 "$DOT/usr-local-bin/session-chooser" /usr/local/bin/session-chooser
+sudo install -Dm644 "$DOT/etc/vconsole.conf"             /etc/vconsole.conf
+sudo systemctl enable greetd
+
+# packages (repo first; AUR ones will error here, that's fine)
+sudo pacman -S --needed --noconfirm - < "$DOT/packages.txt" || true
+# AUR (needs paru/yay already installed)
+paru -S --needed --noconfirm - < "$DOT/aur.txt" || true

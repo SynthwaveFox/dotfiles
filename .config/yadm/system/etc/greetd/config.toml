@@ -1,0 +1,6 @@
+[terminal]
+vt = 1
+
+[default_session]
+command = "tuigreet --time --asterisks --greeting 'Welcome back, Commander' --cmd /usr/local/bin/session-chooser --theme 'border=yellow;title=yellow;greet=yellow;time=yellow;prompt=yellow;action=yellow;button=yellow;input=white;text=white'"
+user = "greeter"

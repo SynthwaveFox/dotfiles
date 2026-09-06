@@ -1,0 +1,7 @@
+brave-bin
+paru
+paru-debug
+plymouth-theme-cybernetic-git
+visual-studio-code-bin
+yay
+yay-debug

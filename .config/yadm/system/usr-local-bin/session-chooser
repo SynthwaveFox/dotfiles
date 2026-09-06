@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+# Remap console palette slot 3 (yellow) -> our orange, then use color "3"
+printf '\033]P3ff8a00'
+O=3
+
+export GUM_CHOOSE_CURSOR_FOREGROUND="$O"
+export GUM_CHOOSE_SELECTED_FOREGROUND="$O"
+export GUM_CHOOSE_HEADER_FOREGROUND="7"
+
+while true; do
+  clear
+  gum style --border double --border-foreground "$O" --foreground "$O" --bold \
+    --align center --width 42 --padding "1 2" --margin "1 0" \
+    "FX-2 SQUADRON" "Session Control"
+  choice=$(gum choose --header "Select a session:" \
+    "niri" "terminal" "reboot" "power off")
+  case "$choice" in
+    "niri")      exec niri-session ;;
+    "terminal")  exec "$SHELL" -l ;;
+    "reboot")    exec systemctl reboot ;;
+    "power off") exec systemctl poweroff ;;
+  esac
+done
