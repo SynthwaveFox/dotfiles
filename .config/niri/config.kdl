@@ -7,7 +7,6 @@
 // Find the full list of options on the wiki:
 // https://yalter.github.io/niri/Configuration:-Input
 spawn-at-startup "dbus-update-activation-environment" "--systemd" "WAYLAND_DISPLAY" "XDG_CURRENT_DESKTOP"
-
 environment {
     ELECTRON_OZONE_PLATFORM_HINT "wayland"
     MOZ_ENABLE_WAYLAND "1"
@@ -288,7 +287,7 @@ layout { // Set gaps around windows in logical pixels. gaps 16
 
 // This line starts waybar, a commonly used bar for Wayland compositors.
 spawn-at-startup "waybar"
-spawn-at-startup "swaync"
+spawn-at-startup "mako"
 spawn-sh-at-startup "swaybg -i ~/.wallpapers/Outrun1440.png -m fill"
 
 // To run a shell command (with variables, pipes, etc.), use spawn-sh-at-startup:
@@ -339,12 +338,19 @@ window-rule {
     default-column-width {}
 }
 
-// Open the Firefox picture-in-picture player as floating by default.
+// Open apps maximized by default
 window-rule {
 	match app-id="brave"
 	match app-id="discord"
+	match app-id="Thunderbird"
 	open-maximized true
 }
+
+window-rule {
+	match app-id="thunderbird"
+	open-fullscreen true
+}
+
 
 // Example: block out two password managers from screen capture.
 // (This example rule is commented out with a "/-" in front.)
