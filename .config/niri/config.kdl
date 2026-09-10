@@ -346,11 +346,6 @@ window-rule {
 	open-maximized true
 }
 
-window-rule {
-	match app-id="thunderbird"
-	open-fullscreen true
-}
-
 
 // Example: block out two password managers from screen capture.
 // (This example rule is commented out with a "/-" in front.)
