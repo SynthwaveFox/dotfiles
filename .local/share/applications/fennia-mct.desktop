@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=FENNIA MCT
+Comment=Master Control Terminal
+Exec=ghostty --config-file=/home/phoenix/.config/ghostty/mct --class=fennia.mct -e /home/phoenix/.local/bin/mct
+Icon=utilities-terminal
+Terminal=false
+Categories=System;Network;
+StartupWMClass=fennia.mct

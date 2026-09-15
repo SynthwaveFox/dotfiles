@@ -1,0 +1,20 @@
+identity: mct_ed25519
+units:
+  - name: pve            # Proxmox host — ssh is already on there
+    kind: Proxmox
+    ssh: root@pve
+  - name: truenas-scale
+    kind: NAS
+    ssh: truenas_admin@truenas-scale
+  - name: tri-1g-ptero
+    kind: Pterodactyl
+    ssh: iridescent@tri-1g-ptero
+  - name: foxbox
+    kind: LXC
+    via: truenas-scale
+  - name: rclone
+    kind: LXC
+    via: truenas-scale
+  - name: tundra
+    kind: LXC
+    via: truenas-scale

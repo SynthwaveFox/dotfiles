@@ -338,6 +338,14 @@ window-rule {
     default-column-width {}
 }
 
+window-rule {
+    match app-id="^fennia\\.mct$"
+    open-maximized true
+    draw-border-with-background false
+    focus-ring { active-color "#ff8a00"; }
+    border { active-color "#ff8a00"; inactive-color "#4d443b"; }
+}
+
 // Open apps maximized by default
 window-rule {
 	match app-id="brave"
@@ -655,7 +663,7 @@ binds {
     // The allow-inhibiting=false property can be applied to other binds as well,
     // which ensures niri always processes them, even when an inhibitor is active.
     // Mod+Escape allow-inhibiting=false { toggle-keyboard-shortcuts-inhibit; }
-
+    Mod+M hotkey-overlay-title="FENNIA Master Control" { spawn "ghostty" "--config-file=/home/phoenix/.config/ghostty/mct" "--class=fennia.mct" "-e" "mct"; }
     // The quit action will show a confirmation dialog to avoid accidental exits.
     Mod+Shift+E { quit; }
     Ctrl+Alt+Delete { quit; }
