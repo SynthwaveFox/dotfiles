@@ -9,5 +9,6 @@ sudo systemctl enable greetd
 
 # packages (repo first; AUR ones will error here, that's fine)
 sudo pacman -S --needed --noconfirm - < "$DOT/packages.txt" || true
+pipx install git+https://github.com/SynthwaveFox/fennia-mct || true
 # AUR (needs paru/yay already installed)
 paru -S --needed --noconfirm - < "$DOT/aur.txt" || true

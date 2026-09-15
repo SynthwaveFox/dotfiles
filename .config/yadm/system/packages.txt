@@ -6,6 +6,8 @@ brave-bin
 breeze
 brightnessctl
 btrfs-progs
+cage
+python-pipx
 cliphist
 discord
 dolphin
