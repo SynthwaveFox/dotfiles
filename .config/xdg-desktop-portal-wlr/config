@@ -1,0 +1,6 @@
+[screencast]
+# pick the monitor to share from a fuzzel list
+chooser_type=dmenu
+chooser_cmd=fuzzel --dmenu --prompt "Share screen: "
+# plain linear buffers: readable by every app on NVIDIA
+force_mod_linear=1

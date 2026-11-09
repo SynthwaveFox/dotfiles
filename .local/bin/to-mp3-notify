@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# File-manager front end for to-mp3: pop-ups instead of a terminal.
+n=$#
+(( n )) || exit 0
+s=$( ((n>1)) && echo s)
+id=$(notify-send -p -a "Convert to MP3" -i audio-x-generic "Converting $n file$s to MP3…" "320 kbps")
+if ~/.local/bin/to-mp3 "$@" >/dev/null 2>&1; then
+	notify-send -r "$id" -a "Convert to MP3" -i audio-x-generic "Converted $n file$s to MP3" "Saved next to the originals" -t 5000
+else
+	notify-send -r "$id" -a "Convert to MP3" -u critical "Some files failed to convert" "Run to-mp3 in a terminal to see why"
+fi

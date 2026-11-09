@@ -1,0 +1,22 @@
+#!/bin/sh
+# Put the Windows Stream Deck (Elgato) icons on StreamController's OBS buttons.
+# The OBS plugin draws its own on/off icons, so its asset files are swapped for
+# Elgato's (originals kept in assets/originals). Re-run after a plugin update.
+set -e
+ICONS="$HOME/.local/share/streamdeck-icons"
+A="$HOME/.var/app/com.core447.StreamController/data/plugins/com_core447_OBSPlugin/assets"
+[ -d "$A" ] || { echo "OBS plugin not installed"; exit 1; }
+mkdir -p "$A/originals"
+swap() {  # swap <plugin asset> <our icon>
+  [ -f "$A/originals/$1" ] || cp "$A/$1" "$A/originals/$1"
+  cp "$ICONS/$2" "$A/$1"
+}
+swap input_unmuted.png      mute_on.png
+swap input_muted.png        mute_off.png
+swap scene_item_enabled.png visibility_on.png
+swap scene_item_disabled.png visibility_off.png
+swap scene_active.png       scene_on.png
+swap scene_inactive.png     scene_off.png
+swap stream_active.png      stream_on.png
+swap stream_inactive.png    stream_off.png
+echo "Stream Deck icons applied (restart StreamController to see them)"

@@ -1,0 +1,16 @@
+[Unit]
+Description=Instant replay (last 30 s of DP-3), saved with Alt+F10
+PartOf=graphical-session.target
+After=graphical-session.target pipewire-pulse.service
+
+[Service]
+# 1440p60, 50 Mbps constant bitrate H.264 on NVENC.
+# Audio: track 1 desktop+mic mixed (plays anywhere), 2 desktop only, 3 mic only (for editing).
+ExecStart=/usr/bin/gpu-screen-recorder -w DP-3 -f 60 -k h264 -bm cbr -q 50000 \
+  -a "default_output|default_input" -a default_output -a default_input -ac aac \
+  -c mp4 -r 30 -o /mnt/capture/Captures/Recordings/.replay -sc %h/.local/bin/clip-saved
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=graphical-session.target

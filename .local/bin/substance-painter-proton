@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+export WINEPREFIX="$HOME/.wine"
+export PROTONPATH="GE-Proton"
+export GAMEID="umu-0"
+export WINEDLLOVERRIDES="msvcp140,msvcp140_1,msvcp140_2,msvcp140_atomic_wait,vcruntime140,vcruntime140_1,concrt140=n,b"
+
+EXE="$WINEPREFIX/drive_c/Program Files/Adobe/Adobe Substance 3D Painter/Adobe Substance 3D Painter.exe"
+
+if [ -n "$1" ]; then
+    WINPATH="Z:$(realpath "$1" | sed 's|/|\\|g')"
+    exec umu-run "$EXE" "$WINPATH"
+else
+    exec umu-run "$EXE"
+fi

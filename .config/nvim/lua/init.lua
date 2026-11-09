@@ -1,0 +1,1 @@
+/home/banana/.config/nvim/init.lua

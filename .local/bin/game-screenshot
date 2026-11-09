@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# Alt+F1: full-screen PNG of the main monitor (DP-3), filed by clip-saved
+# into /mnt/capture/Captures/<Game>/ like the clips.
+tmp=/mnt/capture/Captures/Recordings/.replay/shot-$$.png
+grim -o DP-3 "$tmp" && exec ~/.local/bin/clip-saved "$tmp" screenshot
+notify-send -a "Clips" -u critical "Screenshot failed"

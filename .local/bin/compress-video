@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# compress-video FILE...  ->  FILE_720p.mp4 next to each input
+# 720p (never upscaled), same frame rate, ~2.2 Mbps H.264 on NVENC + 128k AAC.
+# Keeps only the first audio track (on clips that's game + mic mixed), so a
+# 30 s clip comes out under ~9 MB: small enough for Discord's 10 MB limit.
+# Preset p5 + quarter-res multipass: same quality as p7 (SSIM-tested), ~1.5x faster.
+# Batches run 2 at a time: the 4080 has two NVENC engines.
+set -u
+(( $# )) || { echo "usage: compress-video FILE..." >&2; exit 1; }
+jobs_max=2
+
+one() {
+	local in=$1 out="${1%.*}_720p.mp4" stats=$2
+	ffmpeg -hide_banner -loglevel error $stats -y -i "$in" \
+		-map 0:v:0 -map '0:a:0?' \
+		-vf "scale=-2:'min(720,ih)':flags=lanczos" \
+		-c:v h264_nvenc -preset p5 -tune hq -multipass qres \
+		-rc vbr -b:v 2.2M -maxrate 2.2M -bufsize 4.4M -pix_fmt yuv420p \
+		-c:a aac -b:a 128k -movflags +faststart "$out" </dev/null &&
+		echo "done  $out ($(du -h "$out" | cut -f1))" ||
+		{ echo "FAILED  $in" >&2; return 1; }
+}
+
+files=()
+for in in "$@"; do
+	[[ -f $in ]] && files+=("$in") || echo "not a file: $in" >&2
+done
+(( ${#files[@]} )) || exit 1
+(( ${#files[@]} == 1 )) && { one "${files[0]}" -stats; exit; }
+
+rc=0 pids=()
+for in in "${files[@]}"; do
+	echo "start $in"
+	one "$in" -nostats & pids+=($!)
+	if (( ${#pids[@]} >= jobs_max )); then
+		wait "${pids[0]}" || rc=1; pids=("${pids[@]:1}")
+	fi
+done
+for p in "${pids[@]}"; do wait "$p" || rc=1; done
+(( rc == 0 && ${#files[@]} == $# ))

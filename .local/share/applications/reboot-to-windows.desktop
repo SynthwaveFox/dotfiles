@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Reboot to Windows
+Comment=Restart into Windows on the NVMe, for the next boot only
+Exec=/home/phoenix/.local/bin/reboot-to-windows
+Icon=system-reboot
+Terminal=false
+Categories=System;

@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# to-mp3 FILE...  ->  FILE.mp3 next to each input, 320 kbps CBR (LAME).
+# Takes the first audio track (on clips that's game + mic mixed) and keeps
+# title/artist tags from the source.
+set -u
+(( $# )) || { echo "usage: to-mp3 FILE..." >&2; exit 1; }
+rc=0
+for in in "$@"; do
+	[[ -f $in ]] || { echo "not a file: $in" >&2; rc=1; continue; }
+	out="${in%.*}.mp3"
+	[[ $out == "$in" ]] && out="${in%.*}_320k.mp3"
+	if ffmpeg -hide_banner -loglevel error -y -i "$in" -map '0:a:0' -vn \
+		-c:a libmp3lame -b:a 320k -map_metadata 0 -id3v2_version 3 "$out" </dev/null; then
+		echo "done  $out ($(du -h "$out" | cut -f1))"
+	else
+		echo "FAILED  $in" >&2; rc=1
+	fi
+done
+exit $rc

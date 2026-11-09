@@ -15,7 +15,11 @@ while true; do
   choice=$(gum choose --header "Select a session:" \
     "niri" "master control" "terminal" "reboot" "power off")
   case "$choice" in
-    "niri")      exec niri-session ;;
+    "niri")
+      [ -x /usr/local/bin/side-monitors ] && sudo -n /usr/local/bin/side-monitors on
+      niri-session
+      [ -x /usr/local/bin/side-monitors ] && sudo -n /usr/local/bin/side-monitors off
+      exit ;;
     "master control")
 	cage -- ghostty --config-file=/home/phoenix/.config/ghostty/mct-boot --class=fennia.mct -e /home/phoenix/.local/bin/mct ;;
     "terminal")  exec "$SHELL" -l ;;

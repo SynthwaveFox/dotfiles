@@ -1,0 +1,18 @@
+#!/bin/sh
+# Sticky left-click macro (Stream Deck key): first press starts clicking the
+# left mouse button every 47 ms, the next press stops it. Uses ydotoold.
+export YDOTOOL_SOCKET=/run/ydotool/socket
+pidfile="${XDG_RUNTIME_DIR:-/tmp}/autoclick.pid"
+
+if [ -f "$pidfile" ] && kill "$(cat "$pidfile")" 2>/dev/null; then
+  rm -f "$pidfile"
+  exit 0
+fi
+
+(
+  while :; do
+    ydotool click 0xC0 >/dev/null 2>&1 || exit 1   # left button down + up
+    sleep 0.047
+  done
+) &
+echo $! > "$pidfile"

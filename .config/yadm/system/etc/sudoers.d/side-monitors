@@ -1,0 +1,1 @@
+phoenix ALL=(root) NOPASSWD: /usr/local/bin/side-monitors

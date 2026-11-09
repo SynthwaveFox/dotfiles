@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# File-manager front end for compress-video: pop-ups instead of a terminal.
+n=$#
+(( n )) || exit 0
+id=$(notify-send -p -a "Compress video" -i video-x-generic "Compressing $n video$( ((n>1)) && echo s)…" "to 720p")
+if ~/.local/bin/compress-video "$@" >/dev/null 2>&1; then
+	notify-send -r "$id" -a "Compress video" -i video-x-generic "Compressed $n video$( ((n>1)) && echo s)" "Saved next to the originals as *_720p.mp4" -t 5000
+else
+	notify-send -r "$id" -a "Compress video" -u critical "Some videos failed to compress" "Run compress-video in a terminal to see why"
+fi

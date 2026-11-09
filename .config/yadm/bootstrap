@@ -1,10 +1,16 @@
 #!/bin/bash
+# EXODUS (desktop: RTX 4080 SUPER, three monitors). The laptop lives on main.
 set -e
 DOT="$HOME/.config/yadm/system"
 # system files
 sudo install -Dm644 "$DOT/etc/greetd/config.toml"        /etc/greetd/config.toml
 sudo install -Dm755 "$DOT/usr-local-bin/session-chooser" /usr/local/bin/session-chooser
+sudo install -Dm755 "$DOT/usr-local-bin/side-monitors"   /usr/local/bin/side-monitors
+sudo install -Dm440 "$DOT/etc/sudoers.d/side-monitors"   /etc/sudoers.d/side-monitors
 sudo install -Dm644 "$DOT/etc/vconsole.conf"             /etc/vconsole.conf
+sudo install -Dm644 "$DOT/etc/modprobe.d/no-bluetooth.conf" /etc/modprobe.d/no-bluetooth.conf
+sudo install -Dm644 "$DOT/etc/pacman.d/hooks/nvidia.hook"   /etc/pacman.d/hooks/nvidia.hook
+sudo install -Dm644 -t /etc/udev/rules.d "$DOT"/etc/udev/rules.d/*.rules
 sudo systemctl enable greetd
 
 # packages (repo first; AUR ones will error here, that's fine)
@@ -12,3 +18,15 @@ sudo pacman -S --needed --noconfirm - < "$DOT/packages.txt" || true
 pipx install git+https://github.com/SynthwaveFox/fennia-mct || true
 # AUR (needs paru/yay already installed)
 paru -S --needed --noconfirm - < "$DOT/aur.txt" || true
+
+# theme: GTK settings live in dconf, not in a file
+gsettings set org.gnome.desktop.interface color-scheme prefer-dark
+gsettings set org.gnome.desktop.interface accent-color orange
+gsettings set org.gnome.desktop.interface gtk-theme adw-gtk3-dark
+gsettings set org.gnome.desktop.interface icon-theme Papirus-Dark
+gsettings set org.gnome.desktop.interface cursor-theme Bibata-Modern-Amber
+gsettings set org.gnome.desktop.interface cursor-size 24
+sudo papirus-folders -C orange --theme Papirus-Dark || true
+
+systemctl --user daemon-reload
+systemctl --user enable --now gpu-clips.service deej.service swayidle.service || true

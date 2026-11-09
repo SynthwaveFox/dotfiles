@@ -1,0 +1,162 @@
+#!/usr/bin/env python3
+"""deej for Linux/PipeWire: reads slider values from the deej Arduino and sets
+per-app volumes with pactl. Uses deej's own config.yaml format.
+
+Config: ~/.config/deej/config.yaml
+  slider_mapping  index -> app name or list of names. Special names:
+                  master (default output), mic (default input),
+                  deej.unmapped (every app not named on any slider)
+  invert_sliders, com_port (e.g. /dev/ttyUSB0), baud_rate,
+  noise_reduction (low | default | high)
+
+An app matches a name (case-insensitive, ".exe" optional) by its PipeWire
+application.name, its binary, or its process name, so Proton games match by
+their .exe name and native apps by their command (brave, discord, ...).
+"""
+import json, os, subprocess, sys, termios, time
+import yaml
+
+CONFIG = os.path.expanduser("~/.config/deej/config.yaml")
+THRESHOLD = {"low": 0.015, "default": 0.025, "high": 0.035}
+BAUD = {9600: termios.B9600, 19200: termios.B19200, 38400: termios.B38400,
+        57600: termios.B57600, 115200: termios.B115200}
+
+
+def log(*a):
+    print(*a, flush=True)
+
+
+def norm(name):
+    name = str(name).strip().lower()
+    return name[:-4] if name.endswith(".exe") else name
+
+
+def load_config():
+    with open(CONFIG) as f:
+        c = yaml.safe_load(f) or {}
+    mapping = {}
+    for k, v in (c.get("slider_mapping") or {}).items():
+        names = v if isinstance(v, list) else [v]
+        mapping[int(k)] = {norm(n) for n in names if n}
+    return {
+        "mapping": mapping,
+        "invert": bool(c.get("invert_sliders", False)),
+        "port": c.get("com_port", "/dev/ttyUSB0"),
+        "baud": int(c.get("baud_rate", 9600)),
+        "threshold": THRESHOLD.get(c.get("noise_reduction", "default"), 0.025),
+    }
+
+
+def open_serial(port, baud):
+    fd = os.open(port, os.O_RDONLY | os.O_NOCTTY)
+    a = termios.tcgetattr(fd)
+    a[0] = 0                                        # iflag: raw
+    a[1] = 0                                        # oflag
+    a[2] = termios.CS8 | termios.CREAD | termios.CLOCAL
+    a[3] = 0                                        # lflag: no echo/canonical
+    a[4] = a[5] = BAUD.get(baud, termios.B9600)
+    a[6][termios.VMIN], a[6][termios.VTIME] = 1, 0
+    termios.tcsetattr(fd, termios.TCSANOW, a)
+    return os.fdopen(fd, "rb", buffering=0)
+
+
+def streams():
+    """Playing app streams: {index: set of names it answers to}."""
+    out = subprocess.run(["pactl", "-f", "json", "list", "sink-inputs"],
+                         capture_output=True, text=True).stdout
+    result = {}
+    for s in json.loads(out or "[]"):
+        p = s.get("properties", {})
+        names = {p.get("application.name"), p.get("application.process.binary")}
+        pid = p.get("application.process.id")
+        if pid:
+            try:
+                with open(f"/proc/{pid}/comm") as f:
+                    names.add(f.read().strip())
+            except OSError:
+                pass
+        result[s["index"]] = {norm(n) for n in names if n}
+    return result
+
+
+def pct(v):
+    # Windows (and deej there) treats volume as plain loudness: 50% = half amplitude.
+    # pactl percentages are cubic (50% = 1/8 amplitude), so take the cube root to
+    # make each slider position sound the way it did on Windows.
+    return f"{round(v ** (1 / 3) * 100)}%"
+
+
+def main():
+    cfg = load_config()
+    log(f"deej-linux: {len(cfg['mapping'])} sliders, port {cfg['port']}")
+    mapped = set().union(*cfg["mapping"].values()) if cfg["mapping"] else set()
+    values = {}        # slider -> current value 0..1
+    applied = {}       # (slider, stream) -> value last set
+    last_scan = 0.0
+
+    def apply(force_new_only):
+        nonlocal applied
+        now = streams()
+        applied = {k: v for k, v in applied.items() if k[1] in now or k[1] in ("master", "mic")}
+        for i, names in cfg["mapping"].items():
+            if i not in values:
+                continue
+            v = values[i]
+            targets = []
+            if "master" in names:
+                targets.append(("master", ["set-sink-volume", "@DEFAULT_SINK@"]))
+            if "mic" in names:
+                targets.append(("mic", ["set-source-volume", "@DEFAULT_SOURCE@"]))
+            for idx, snames in now.items():
+                if snames & names or ("deej.unmapped" in names and not snames & mapped):
+                    targets.append((idx, ["set-sink-input-volume", str(idx)]))
+            for key, cmd in targets:
+                prev = applied.get((i, key))
+                if prev is not None and (force_new_only or prev == v):
+                    continue
+                subprocess.run(["pactl", *cmd, pct(v)], capture_output=True)
+                applied[(i, key)] = v
+
+    while True:
+        try:
+            ser = open_serial(cfg["port"], cfg["baud"])
+            log("connected")
+            buf = b""
+            while True:
+                chunk = ser.read(256)
+                if not chunk:
+                    raise OSError("serial closed")
+                buf += chunk
+                *lines, buf = buf.split(b"\n")
+                changed = False
+                for line in lines:
+                    parts = line.strip().decode(errors="ignore").split("|")
+                    try:
+                        raw = [int(x) for x in parts]
+                    except ValueError:
+                        continue
+                    for i, r in enumerate(raw):
+                        v = round(min(max(r / 1023, 0), 1), 2)
+                        if cfg["invert"]:
+                            v = round(1 - v, 2)
+                        old = values.get(i)
+                        # snap to the ends so 0% and 100% are always reachable
+                        if old is None or abs(v - old) >= cfg["threshold"] or \
+                                (v in (0.0, 1.0) and v != old):
+                            values[i] = v
+                            changed = True
+                if changed:
+                    apply(False)
+                if time.monotonic() - last_scan > 1:     # pick up newly started apps
+                    apply(True)
+                    last_scan = time.monotonic()
+        except OSError as e:
+            log(f"serial: {e}; retrying in 2s")
+            time.sleep(2)
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        sys.exit(0)

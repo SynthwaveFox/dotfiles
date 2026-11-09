@@ -5,7 +5,10 @@ anchor=top-right
 font=JetBrainsMono Nerd Font 11
 width=360
 height=140
-margin=12
+# Blur covers the whole popup surface, so the gap goes outside it (outer-margin)
+# and the corners are clipped by niri (geometry-corner-radius = border-radius).
+outer-margin=12
+margin=0
 padding=14
 border-size=2
 border-radius=10
@@ -14,7 +17,7 @@ max-icon-size=48
 default-timeout=5000
 ignore-timeout=1
 
-background-color=#181825
+background-color=#181825cc
 text-color=#cdd6f4
 border-color=#ff8a00
 progress-color=over #ff8a00
@@ -29,3 +32,7 @@ default-timeout=10000
 [urgency=high]
 border-color=#f38ba8
 default-timeout=0
+
+# Toggled from the bar bell (waybar/scripts/dnd.sh)
+[mode=do-not-disturb]
+invisible=1

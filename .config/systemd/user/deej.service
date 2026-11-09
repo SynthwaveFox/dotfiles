@@ -1,0 +1,12 @@
+[Unit]
+Description=deej hardware volume mixer (Linux runner)
+After=pipewire-pulse.service
+Wants=pipewire-pulse.service
+
+[Service]
+ExecStart=%h/.local/bin/deej-linux
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=default.target

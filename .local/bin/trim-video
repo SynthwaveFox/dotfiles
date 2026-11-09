@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+# trim-video [--fast] FILE START END  ->  FILE_trim.mp4 (or _trim2, _trim3...)
+# START/END: seconds (12.5), mm:ss (1:05) or hh:mm:ss; END may be "end".
+# Default re-encodes on NVENC so the cut is frame-exact, near-lossless (CQ 18),
+# keeping every audio track. --fast copies the streams instead: instant and
+# lossless, but the start snaps to the nearest keyframe (up to ~2 s early).
+set -u
+fast=0
+[[ ${1:-} == --fast ]] && { fast=1; shift; }
+(( $# == 3 )) || { echo "usage: trim-video [--fast] FILE START END" >&2; exit 1; }
+in=$1 start=$2 end=$3
+[[ -f $in ]] || { echo "not a file: $in" >&2; exit 1; }
+
+base="${in%.*}_trim" out="$base.mp4" n=2
+while [[ -e $out ]]; do out="${base}${n}.mp4"; n=$((n + 1)); done
+
+range=(-ss "$start")
+[[ $end != end ]] && range+=(-to "$end")
+if (( fast )); then
+	codec=(-c copy)
+else
+	codec=(-c:v h264_nvenc -preset p5 -tune hq -rc vbr -cq 18 -b:v 0 -pix_fmt yuv420p -c:a aac -b:a 192k)
+fi
+ffmpeg -hide_banner -loglevel error -stats -y "${range[@]}" -i "$in" -map 0:v:0 -map '0:a?' \
+	"${codec[@]}" -movflags +faststart "$out" </dev/null || { echo "FAILED  $in" >&2; exit 1; }
+echo "done  $out ($(du -h "$out" | cut -f1))"

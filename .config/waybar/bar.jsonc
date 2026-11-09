@@ -1,0 +1,127 @@
+// Orange Outrun strip, shared by every monitor (see ./config for per-screen sizes).
+// Previous layout: ~/.config-backup-20261027/rice-before-20261109/waybar-before-modules/bar.jsonc
+{
+  "layer": "top",
+  "position": "top",
+  "height": 40,
+  "spacing": 0,
+  "modules-left": [
+    "custom/arch",
+    "niri/workspaces",
+    "mpris"
+  ],
+  "modules-center": [
+    "clock",
+    "custom/clocksep",
+    "clock#date"
+  ],
+  "modules-right": [
+    "tray",
+    "custom/dnd",
+    "cpu",
+    "memory",
+    "wireplumber",
+    "wireplumber#source"
+  ],
+
+  "custom/arch": {
+    "format": "󰣇",
+    "tooltip-format": "App launcher",
+    "on-click": "pkill fuzzel || fuzzel"
+  },
+  "niri/workspaces": {
+    "format": "{index}"
+  },
+  "mpris": {
+    "format": "<span color='#ff8a00' size='larger'>{status_icon}</span>  {title} <span color='#7f849c'>·</span> {artist}",
+    "format-paused": "<span color='#7f849c'>{status_icon}  {title} · {artist}</span>",
+    "format-stopped": "",
+    "status-icons": { "playing": "󰎆", "paused": "󰏤" },
+    "title-len": 32,
+    "artist-len": 20,
+    "tooltip-format": "{player}: {title}\n{artist} — {album}\nClick: play/pause · Scroll: skip",
+    "on-scroll-up": "playerctl next",
+    "on-scroll-down": "playerctl previous"
+  },
+
+  // Time and date are padded to the same width so the dot between them sits
+  // exactly in the middle of the screen.
+  "clock": {
+    "format": "<span color='#ff8a00' size='larger'>󰥔</span>  {:%H:%M}",
+    "min-length": 9,
+    "align": 1,
+    "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+    "calendar": {
+      "format": {
+        "today": "<span color='#ff8a00'><b><u>{}</u></b></span>",
+        "weekdays": "<span color='#fab387'><b>{}</b></span>"
+      }
+    }
+  },
+  "custom/clocksep": {
+    "format": "·",
+    "tooltip": false
+  },
+  "clock#date": {
+    "format": "{:%b %d}  <span color='#ff8a00' size='larger'>󰃭</span>",
+    "min-length": 9,
+    "align": 0,
+    "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
+    "calendar": {
+      "format": {
+        "today": "<span color='#ff8a00'><b><u>{}</u></b></span>",
+        "weekdays": "<span color='#fab387'><b>{}</b></span>"
+      }
+    }
+  },
+
+
+  "tray": {
+    "icon-size": 17,
+    "spacing": 10
+  },
+  "custom/dnd": {
+    "exec": "~/.config/waybar/scripts/dnd.sh",
+    "on-click": "~/.config/waybar/scripts/dnd.sh toggle",
+    "return-type": "json",
+    "interval": "once",
+    "exec-on-event": true,
+    "signal": 8
+  },
+  "cpu": {
+    "interval": 3,
+    "min-length": 7,
+    "align": 0,
+    "format": "<span color='#ff8a00' size='x-large' rise='-1pt'></span>  {usage}%",
+    "on-click": "ghostty -e btop"
+  },
+
+
+  "memory": {
+    "interval": 5,
+    "min-length": 8,
+    "align": 0,
+    "format": "<span color='#ff8a00' size='x-large' rise='-1pt'></span>  {used:0.1f}G",
+    "tooltip-format": "RAM {used:0.1f} / {total:0.1f} GB ({percentage}%)\nSwap {swapUsed:0.1f} / {swapTotal:0.1f} GB"
+  },
+
+  "wireplumber": {
+    "min-length": 7,
+    "align": 0,
+    "format": "<span color='#ff8a00' size='larger'>{icon}</span>  {volume}%",
+    "format-muted": "<span color='#7f849c' size='larger'>󰖁</span><span color='#7f849c'>  Muted</span>",
+    "format-icons": ["󰕿", "󰖀", "󰕾"],
+    "tooltip-format": "{node_name}",
+    "scroll-step": 1
+  },
+  "wireplumber#source": {
+    "min-length": 7,
+    "align": 0,
+    "node-type": "Audio/Source",
+    "format": "<span color='#ff8a00' size='larger'>󰍬</span>  {volume}%",
+    "format-muted": "<span color='#f38ba8' size='larger'>󰍭</span><span color='#f38ba8'>  Muted</span>",
+    "tooltip-format": "{node_name}\nClick: reset to 100%",
+    "on-click": "wpctl set-volume @DEFAULT_SOURCE@ 1"
+  }
+
+}

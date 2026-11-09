@@ -1,0 +1,6 @@
+#!/bin/sh
+# usage: side-monitors on|off
+case "$1" in on) v=detect ;; off) v=off ;; *) echo "usage: $0 on|off" >&2; exit 1 ;; esac
+for c in HDMI-A-1 DP-2; do
+  for s in /sys/class/drm/card*-"$c"/status; do [ -e "$s" ] && echo "$v" > "$s"; done
+done

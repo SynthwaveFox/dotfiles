@@ -8,11 +8,9 @@
 // https://yalter.github.io/niri/Configuration:-Input
 spawn-at-startup "dbus-update-activation-environment" "--systemd" "WAYLAND_DISPLAY" "XDG_CURRENT_DESKTOP"
 environment {
-    ELECTRON_OZONE_PLATFORM_HINT "wayland"
     MOZ_ENABLE_WAYLAND "1"
     QT_QPA_PLATFORM "wayland;xcb"
     GDK_BACKEND "wayland,x11"
-    SDL_VIDEODRIVER "wayland"
     CLUTTER_BACKEND "wayland"
     QT_QPA_PLATFORMTHEME "kde"
 }
@@ -30,6 +28,12 @@ input {
             // If this section is empty, niri will fetch xkb settings
             // from org.freedesktop.locale1. You can control these using
             // localectl set-x11-keymap.
+
+            // srvrkeys:none: Ctrl+Alt+F1..F12 no longer switch to a text console,
+            // so clipping (Alt+F10) while holding Ctrl to crouch can't drop you
+            // to a TTY. Reach a TTY with `sudo chvt 3` if ever needed.
+            layout "us"
+            options "srvrkeys:none"
         }
 
         // Enable numlock on startup, omitting this setting disables it.
@@ -59,7 +63,7 @@ input {
         // natural-scroll
         accel-speed 0.0
         accel-profile "flat"
-	scroll-factor 1.0
+	scroll-factor 1.2
         // scroll-method "no-scroll"
     }
 
@@ -119,11 +123,26 @@ input {
     // automatically.
     // position x=0 y=0
 // }
-output "eDP-1" {
-  scale 1.5
+// Left to right: KYY (tertiary), AOC (primary), Dell (secondary)
+output "DP-2" {
+    mode "1920x1080@60.000"
+    scale 1
+    position x=0 y=512
+}
+output "DP-3" {
+    mode "2560x1440@143.912"
+    scale 1
+    position x=1920 y=0
+    focus-at-startup
+}
+output "HDMI-A-1" {
+    mode "1920x1080@60.000"
+    scale 1
+    position x=4480 y=400
 }
 cursor {
-   xcursor-size 20
+   xcursor-theme "Bibata-Modern-Amber"
+   xcursor-size 24
    hide-after-inactive-ms 30000
 }
 
@@ -216,7 +235,8 @@ layout { // Set gaps around windows in logical pixels. gaps 16
         // off
 
         width 3
-        active-color "#ff8a00"
+        // Outrun sunset: orange into pink, like the wallpaper.
+        active-gradient from="#ff8a00" to="#f5559b" angle=135
         inactive-color "#585b70"
 
         // Color of the border around windows that request your attention.
@@ -264,7 +284,9 @@ layout { // Set gaps around windows in logical pixels. gaps 16
         offset x=0 y=5
 
         // You can also change the shadow color and opacity.
-        color "#0007"
+        // The focused window glows orange; others keep a plain dark shadow.
+        color "#ff8a0066"
+        inactive-color "#0007"
     }
 
     // Struts shrink the area occupied by windows, similarly to layer-shell panels.
@@ -280,6 +302,21 @@ layout { // Set gaps around windows in logical pixels. gaps 16
     }
 }
 
+workspace "scratch"
+
+// VLC opens maximized (its dialogs still open normally)
+window-rule {
+    match app-id="^vlc$"
+    exclude title="(?i)preferences|adjustments|information|open|convert|messages"
+    open-maximized true
+}
+
+window-rule {
+    match app-id=r#"^ghostty\.scratch$"#
+    open-on-workspace "scratch"
+    open-floating true
+}
+
 // Add lines like this to spawn processes at startup.
 // Note that running niri as a session supports xdg-desktop-autostart,
 // which may be more convenient to use.
@@ -288,6 +325,11 @@ layout { // Set gaps around windows in logical pixels. gaps 16
 // This line starts waybar, a commonly used bar for Wayland compositors.
 spawn-at-startup "waybar"
 spawn-at-startup "mako"
+spawn-at-startup "/usr/lib/polkit-kde-authentication-agent-1"
+// Solaar reapplies the mouse settings (2600 DPI) whenever it connects
+spawn-at-startup "solaar" "--window=hide"
+spawn-at-startup "discord"
+spawn-at-startup "ghostty" "--config-file=/home/phoenix/.config/ghostty/mct" "--class=fennia.mct" "-e" "mct"
 spawn-sh-at-startup "swaybg -i ~/.wallpapers/Outrun1440.png -m fill"
 
 // To run a shell command (with variables, pipes, etc.), use spawn-sh-at-startup:
@@ -340,6 +382,7 @@ window-rule {
 
 window-rule {
     match app-id="^fennia\\.mct$"
+    open-on-output "DP-2"
     open-maximized true
     draw-border-with-background false
     focus-ring { active-color "#ff8a00"; }
@@ -351,7 +394,18 @@ window-rule {
 	match app-id="brave"
 	match app-id="discord"
 	match app-id="Thunderbird"
+	match app-id="sonora"
 	open-maximized true
+}
+
+// Discord and OBS open maximized on the Dell (secondary, right)
+window-rule {
+    match app-id="^discord$"
+    match app-id=r#"^com\.obsproject\.Studio$"#
+    match app-id="sonora"
+    exclude title="^Discord Updater$"
+    open-on-output "HDMI-A-1"
+    open-maximized true
 }
 
 
@@ -381,6 +435,24 @@ window-rule {
    match app-id="com.mitchellh.ghostty"
    background-effect {
       blur true
+   }
+}
+// Mako popups show on your screen but are blacked out in screen shares (Discord, OBS via portal).
+layer-rule {
+   match namespace="^notifications$"
+   block-out-from "screencast"
+   geometry-corner-radius 10
+   background-effect {
+      blur true
+      xray false
+   }
+}
+// Frosted bar: waybar's background is semi-transparent so the blur shows through.
+layer-rule {
+   match namespace="^waybar$"
+   background-effect {
+      blur true
+      xray false
    }
 }
 layer-rule {
@@ -432,16 +504,21 @@ binds {
     // Example volume keys mappings for PipeWire & WirePlumber.
     // The allow-when-locked=true property makes them work even when the session is locked.
     // Using spawn-sh allows to pass multiple arguments together with the command.
-    XF86AudioRaiseVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.1+"; }
-    XF86AudioLowerVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.1-"; }
+    XF86AudioRaiseVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.05+"; }
+    XF86AudioLowerVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.05-"; }
     XF86AudioMute        allow-when-locked=true { spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"; }
     XF86AudioMicMute     allow-when-locked=true { spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"; }
+
+    // Media keys: control whatever is playing (Spotify, Brave, VLC...) via MPRIS
+    XF86AudioPlay  allow-when-locked=true { spawn "playerctl" "play-pause"; }
+    XF86AudioPause allow-when-locked=true { spawn "playerctl" "play-pause"; }
+    XF86AudioStop  allow-when-locked=true { spawn "playerctl" "stop"; }
+    XF86AudioNext  allow-when-locked=true { spawn "playerctl" "next"; }
+    XF86AudioPrev  allow-when-locked=true { spawn "playerctl" "previous"; }
 
     // Example brightness key mappings for brightnessctl.
     // You can use regular spawn with multiple arguments too (to avoid going through "sh"),
     // but you need to manually put each argument in separate "" quotes.
-    XF86MonBrightnessUp allow-when-locked=true { spawn "brightnessctl" "--class=backlight" "set" "+5%"; }
-    XF86MonBrightnessDown allow-when-locked=true { spawn "brightnessctl" "--class=backlight" "set" "5%-"; }
 
     // Open/close the Overview: a zoomed-out view of workspaces and windows.
     // You can also move the mouse into the top-left hot corner,
@@ -467,7 +544,7 @@ binds {
     Mod+Shift+J     { move-window-down; }
     Mod+Shift+K     { move-window-up; }
     Mod+Shift+L     { move-column-right; }
-
+    Mod+Space       { spawn-sh "nscratch -id ghostty.scratch -s 'ghostty --class=ghostty.scratch'"; }
     // Alternative commands that move across workspaces when reaching
     // the first or last window in a column.
     // Mod+J     { focus-window-or-workspace-down; }
@@ -497,6 +574,16 @@ binds {
     Mod+Shift+Ctrl+J     { move-column-to-monitor-down; }
     Mod+Shift+Ctrl+K     { move-column-to-monitor-up; }
     Mod+Shift+Ctrl+L     { move-column-to-monitor-right; }
+
+    // Monitors by desk position, like Mod+1..9 for workspaces:
+    // Mod+Alt+1/2/3 = go to KYY / AOC / Dell (new apps then open there)
+    // Mod+Alt+Shift+1/2/3 = send the focused column there
+    Mod+Alt+1 hotkey-overlay-title="Focus KYY (left)" { focus-monitor "DP-2"; }
+    Mod+Alt+2 hotkey-overlay-title="Focus AOC (middle)" { focus-monitor "DP-3"; }
+    Mod+Alt+3 hotkey-overlay-title="Focus Dell (right)" { focus-monitor "HDMI-A-1"; }
+    Mod+Alt+Shift+1 { move-column-to-monitor "DP-2"; }
+    Mod+Alt+Shift+2 { move-column-to-monitor "DP-3"; }
+    Mod+Alt+Shift+3 { move-column-to-monitor "HDMI-A-1"; }
 
     // Alternatively, there are commands to move just a single window:
     // Mod+Shift+Ctrl+Left  { move-window-to-monitor-left; }
@@ -668,14 +755,30 @@ binds {
     Mod+Shift+E { quit; }
     Ctrl+Alt+Delete { quit; }
 
+    // Corsair G keys: the onboard iCUE profile sends Ctrl+Shift+Alt+F7..F12. Unbound for now.
+    // Ctrl+Shift+Alt+F10 is G4 and must not be a clip bind; niri can't tell them apart.
+
     // Powers off the monitors. To turn them back on, do any input like
     // moving the mouse or pressing any other key.
     Mod+Shift+P { power-off-monitors; }
+    // Save the last 30 s (gpu-clips.service), ShadowPlay-style
+    Alt+F10 hotkey-overlay-title="Save Clip" { spawn "systemctl" "--user" "kill" "--kill-whom=main" "-s" "USR1" "gpu-clips.service"; }
+    Alt+F1 hotkey-overlay-title="Game Screenshot" { spawn-sh "~/.local/bin/game-screenshot"; }
+    // Same with crouch/sprint/walk held (Ctrl/Shift), like ShadowPlay
+    Ctrl+Alt+F10 hotkey-overlay-title=null { spawn "systemctl" "--user" "kill" "--kill-whom=main" "-s" "USR1" "gpu-clips.service"; }
+    Shift+Alt+F10 hotkey-overlay-title=null { spawn "systemctl" "--user" "kill" "--kill-whom=main" "-s" "USR1" "gpu-clips.service"; }
+    Ctrl+Alt+F1 hotkey-overlay-title=null { spawn-sh "~/.local/bin/game-screenshot"; }
+    Shift+Alt+F1 hotkey-overlay-title=null { spawn-sh "~/.local/bin/game-screenshot"; }
+    Ctrl+Shift+Alt+F1 hotkey-overlay-title=null { spawn-sh "~/.local/bin/game-screenshot"; }
     Mod+Delete { spawn-sh "shutdown now";}
     Mod+Shift+Delete { spawn-sh "reboot now";}
-    Mod+Shift+D { spawn-sh "niri msg output eDP-1 on"; }
-    Mod+D { spawn-sh "niri msg output eDP-1 off"; }
     Mod+Escape { spawn "ghostty" "-e" "btop"; }
 
     F10 {spawn-sh "wpctl set-mute @DEFAULT_SOURCE@ toggle"; }
+}
+
+// No middle-click paste: turn off the "primary selection" clipboard entirely.
+// Ctrl+C / Ctrl+V still work as normal.
+clipboard {
+    disable-primary
 }

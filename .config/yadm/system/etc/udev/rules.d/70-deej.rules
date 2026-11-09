@@ -1,0 +1,2 @@
+# deej volume mixer: Arduino Nano clone with a CH340 USB-serial chip
+SUBSYSTEM=="tty", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="7523", TAG+="uaccess", SYMLINK+="deej"

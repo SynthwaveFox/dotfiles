@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=Nano (Ghostty)
+Exec=ghostty -e nano %F
+Type=Application
+Terminal=false
+MimeType=text/plain;
+NoDisplay=true

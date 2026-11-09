@@ -13,10 +13,8 @@
      "network",
      "memory",
      "cpu",
-     "backlight",
      "wireplumber",
      "wireplumber#source",
-     "battery",
      "custom/exit"
   ],
   "custom/launcher": {

@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Reboot into the Windows on the NVMe, for the next boot only (GRUB stays the
+# default). Matched by the NVMe's EFI partition, not the entry number, because
+# there's a second, inactive Windows entry on the Archive drive (sdd).
+NVME_ESP=c0cc7053-7896-4648-92cf-aef17262bf8a
+entry=$(efibootmgr -v | sed -n "s/^Boot\([0-9A-F]\{4\}\).*Windows Boot Manager.*$NVME_ESP.*/\1/p" | head -1)
+if [[ -z $entry ]]; then
+	notify-send -a "Reboot to Windows" -u critical "Windows boot entry not found" "Nothing changed. Check efibootmgr -v."
+	exit 1
+fi
+pkexec efibootmgr --bootnext "$entry" >/dev/null && systemctl reboot

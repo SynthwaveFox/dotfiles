@@ -1,0 +1,18 @@
+[Unit]
+Description=OBS background music (shuffled ~/Documents/Streaming/Music, only OBS hears it)
+After=pipewire-pulse.service wireplumber.service
+Wants=pipewire-pulse.service
+
+[Service]
+# Private output called "OBS Music": nothing plays it to your headset, OBS's
+# BG Music source records from it. Removed again when the service stops.
+ExecStartPre=-/usr/bin/sh -c 'pactl list short modules | awk "/sink_name=obs_music/{print \$1}" | xargs -r -n1 pactl unload-module'
+ExecStartPre=/usr/bin/pactl load-module module-null-sink sink_name=obs_music sink_properties=device.description=OBS_Music
+Environment=PULSE_SINK=obs_music
+ExecStart=/usr/bin/cvlc --quiet --no-video --random --loop --aout=pulse %h/Documents/Streaming/Music
+ExecStopPost=-/usr/bin/sh -c 'pactl list short modules | awk "/sink_name=obs_music/{print \$1}" | xargs -r -n1 pactl unload-module'
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=default.target

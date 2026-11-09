@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# Run by gpu-screen-recorder after it saves a replay ($1 = file), and by
+# game-screenshot ($2 = screenshot).
+# Files the clip ShadowPlay-style: /mnt/capture/Captures/<Game>/<Game> date - time.mp4
+# The game is whatever was focused: a Steam game by its Steam name, anything else -> Desktop.
+set -u
+file=$1
+root=/mnt/capture/Captures
+steam=~/.local/share/Steam/steamapps
+
+win=$(niri msg -j focused-window 2>/dev/null)
+field() { python3 -c 'import json,sys; v=(json.loads(sys.stdin.read() or "null") or {}).get(sys.argv[1]); print(v if v is not None else "")' "$1" <<<"$win"; }
+pid=$(field pid)
+appid=$(field app_id | sed -n 's/^steam_app_\([0-9]\+\)$/\1/p')
+[[ -z $appid && -n $pid ]] && appid=$(tr '\0' '\n' </proc/$pid/environ 2>/dev/null | sed -n 's/^SteamAppId=\([0-9]\+\)$/\1/p' | head -1)
+
+game=Desktop
+if [[ -n $appid && $appid != 0 ]]; then
+	name=$(grep -h -m1 '"name"' "$steam/appmanifest_$appid.acf" 2>/dev/null | sed 's/.*"name"[[:space:]]*"\(.*\)"/\1/')
+	[[ -z $name ]] && name=$(field title)
+	name=$(tr -d '/\\:*?"<>|' <<<"${name:-Steam $appid}")
+	# Windows-format drive: no trailing dots or spaces (R.E.P.O. -> R.E.P.O)
+	shopt -s extglob; name=${name%%+([. ])}
+	game=${name:-Steam $appid}
+	# reuse an existing folder that differs only in case (e.g. ShadowPlay's "The Finals")
+	for d in "$root"/*/; do
+		d=${d%/}; d=${d##*/}
+		[[ ${d,,} == "${name,,}" ]] && game=$d && break
+	done
+fi
+
+mkdir -p "$root/$game"
+stamp=$(date '+%Y.%m.%d - %H.%M.%S')
+if [[ ${2:-} == screenshot ]]; then
+	dest="$root/$game/$game Screenshot $stamp.png" what=Screenshot icon=camera-photo
+else
+	dest="$root/$game/$game $stamp.mp4" what=Clip icon=media-record
+fi
+if mv -n "$file" "$dest"; then
+	notify-send -a "Clips" -i "$icon" "$what saved" "$game" -t 4000
+else
+	notify-send -a "Clips" -u critical "$what saved, but couldn't move it" "$file"
+fi

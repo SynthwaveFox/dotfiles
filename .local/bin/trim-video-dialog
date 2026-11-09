@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# File-manager front end for trim-video: asks for the range in a zenity form.
+in=${1:-}
+[[ -f $in ]] || exit 0
+dur=$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$in" | cut -d. -f1)
+form=$(zenity --forms --title="Trim video" \
+	--text="${in##*/}\nLength: $((dur / 60))m $((dur % 60))s\nTimes as seconds, m:ss or h:mm:ss" \
+	--add-entry="Start (e.g. 0:12)" --add-entry="End (blank = to the end)" \
+	--add-combo="Mode" --combo-values="Exact (re-encode)|Fast (keyframe, lossless)" \
+	--separator='|' 2>/dev/null) || exit 0
+IFS='|' read -r start end mode <<<"$form"
+start=${start:-0}
+end=${end:-end}
+[[ $mode == Fast* ]] && flag=--fast || flag=
+id=$(notify-send -p -a "Trim video" -i video-x-generic "Trimming…" "${in##*/}  $start → $end")
+if out=$(~/.local/bin/trim-video $flag "$in" "$start" "$end" 2>/dev/null | tail -1); then
+	notify-send -r "$id" -a "Trim video" -i video-x-generic "Trimmed" "${out#done  }" -t 5000
+else
+	notify-send -r "$id" -a "Trim video" -u critical "Trim failed" "Check the times, or run trim-video in a terminal"
+fi
