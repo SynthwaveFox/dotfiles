@@ -329,6 +329,7 @@ spawn-at-startup "/usr/lib/polkit-kde-authentication-agent-1"
 // Solaar reapplies the mouse settings (2600 DPI) whenever it connects
 spawn-at-startup "solaar" "--window=hide"
 spawn-at-startup "discord"
+spawn-at-startup "sonora"
 spawn-at-startup "ghostty" "--config-file=/home/phoenix/.config/ghostty/mct" "--class=fennia.mct" "-e" "mct"
 spawn-sh-at-startup "swaybg -i ~/.wallpapers/Outrun1440.png -m fill"
 
