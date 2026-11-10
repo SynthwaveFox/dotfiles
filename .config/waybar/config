@@ -1,156 +1,81 @@
+// Laptop bar: the exodus Outrun strip (bar.jsonc) on the single eDP-1 screen,
+// plus the laptop-only modules (backlight, battery, temp, fan).
+// Wi-Fi lives in the tray (nm-applet).
 {
-  "layer": "top",
-  "position": "top",
+  "include": ["~/.config/waybar/bar.jsonc"],
   "height": 40,
+
   "modules-left": [
-    "niri/workspaces"
-  ],
-  "modules-center": [
-    "clock"
+    "custom/arch",
+    "niri/workspaces",
+    "temperature",
+    "custom/fan",
+    "mpris"
   ],
   "modules-right": [
     "tray",
-     "network",
-     "memory",
-     "cpu",
-     "backlight",
-     "wireplumber",
-     "wireplumber#source",
-     "battery",
-     "custom/exit"
+    "custom/dnd",
+    "cpu",
+    "memory",
+    "backlight",
+    "wireplumber",
+    "wireplumber#source",
+    "battery"
   ],
-  "custom/launcher": {
-    "format": "<span color='#F38BA8'></span>",
-    // "on-click": "wofi --show drun --insensitive --allow-images"
-    "on-click": "pkill rofi || rofi -show drun --insensitive --allow-images"
+
+  // narrower now-playing so it doesn't run into the clock on the 1504px-wide screen
+  "mpris": {
+    "format": "<span color='#ff8a00' size='larger'>{status_icon}</span>  {title} <span color='#7f849c'>·</span> {artist}",
+    "format-paused": "<span color='#7f849c' size='larger'>{status_icon}</span>  {title} <span color='#7f849c'>·</span> {artist}",
+    "format-stopped": "",
+    "status-icons": { "playing": "󰎆", "paused": "󰏤" },
+    "title-len": 18,
+    "artist-len": 12,
+    "tooltip-format": "{player}: {title}\n{artist} — {album}\nClick: play/pause · Scroll: skip",
+    "on-scroll-up": "playerctl next",
+    "on-scroll-down": "playerctl previous"
   },
-  "niri/workspaces": {
-    "format": "{index}",
-    "format-icons": {
-       "default": "",
-       "active": ""
-    }
+
+  "temperature": {
+    "hwmon-path-abs": "/sys/devices/platform/coretemp.0/hwmon",
+    "input-filename": "temp1_input",
+    "interval": 5,
+    "critical-threshold": 85,
+    "format": "<span color='#ff8a00' size='larger'></span>  {temperatureC}°",
+    "format-critical": "<span color='#f38ba8' size='larger'></span>  {temperatureC}°",
+    "tooltip-format": "CPU package: {temperatureC}°C"
   },
-  /*"inhibitor": {
-    "on-click": "",
-    "what": "idle",
-    "format": "{icon}",
-    "format-icons": {
-      "activated": "",
-      "deactivated": ""
-    }
-  },
-  "custom/caffeine": {
-    "on-click": "",
-    "exec": "~/.config/waybar/scripts/caffeine.sh",
+  "custom/fan": {
+    "exec": "~/.config/waybar/scripts/fan.sh",
     "return-type": "json",
-    "interval": 3,
-    "format-icons": [
-      "﯈",
-      ""
-    ],
-    "format": "{icon}"
-  },
-  "custom/updates": {
-    "exec": "(checkupdates ; paru -Qua) | wc -l",
-    "interval": 12000,
-    "format": " {}",
-    "on-click": "wezterm start yay -Syu --noconfirm --devel"
-  },*/
-  "tray": {
-    "on-click": "",
-    "icon-size": 17,
-    "spacing": 10
+    "interval": 5,
+    "format": "<span color='#ff8a00' size='larger'>󰈐</span>  {}"
   },
   "backlight": {
-    "on-click": "",
     "device": "intel_backlight",
-    "format": "{icon} {percent}%",
-    "format-icons": [
-      "󰃞",
-      "󰃟",
-      "󰃠"
-    ],
+    "format": "<span color='#ff8a00' size='larger'>{icon}</span>  {percent}%",
+    "format-icons": ["󰃞", "󰃟", "󰃠"],
     "on-scroll-up": "brightnessctl set 1%+",
-    "on-scroll-down": "brightnessctl set 1%-",
-    "min-length": 6
+    "on-scroll-down": "brightnessctl set 1%-"
   },
   "battery": {
     "interval": 5,
-    "states": {
-      "good": 80,
-      "warning": 30,
-      "critical": 20
-    },
-    "format": "{icon} {capacity}%",
-    "format-charging": "󰂄 {capacity}%",
-    "format-plugged": "󰂄 {capacity}%",
-    "format-alt": "{time} {icon}",
-    "format-icons": [
-      "critical 󰂎",
-      "low 󰁺",
-      "󰁻",
-      "󰁼",
-      "󰁾",
-      "󰁿",
-      "󰁿",
-      "󰂀",
-      "󰂁",
-      "󰂂",
-      "󰁹"
-    ]
+    "states": { "warning": 30, "critical": 15 },
+    "format": "<span color='#ff8a00' size='larger'>{icon}</span>  {capacity}%",
+    "format-charging": "<span color='#a6e3a1' size='larger'>󰂄</span>  {capacity}%",
+    "format-plugged": "<span color='#a6e3a1' size='larger'>󰂄</span>  {capacity}%",
+    "format-icons": ["󰂎", "󰁺", "󰁻", "󰁼", "󰁽", "󰁾", "󰁿", "󰂀", "󰂁", "󰂂", "󰁹"],
+    "tooltip-format": "{timeTo}\n{power:0.1f} W"
   },
-  "clock": {
-    "on-click": "",
-    "format": " {:%H:%M  %m/%d}",
-    "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>"
-  },
-  "network": {
-    "interval": 5,
-    "format-wifi": "󰖩  {essid}",
-    "format-ethernet": "󰈀 ",
-    "format-linked": "{ifname} (No IP) ",
-    "format-disconnected": "󰖪 Disc.",
-    "tooltip-format-wifi": "Signal Strength: {signalStrength}% | Down Speed: {bandwidthDownBits}, Up Speed: {bandwidthUpBits}",
-    "tooltip-format-ethernet": "Down Speed: {bandwidthDownBits}, Up Speed: {bandwidthUpBits}",
-    // "on-click": "wofi-wifi-menu",
-    "on-click": "hyprctl dispatch exec [workspace special:scratchpad] \"ghostty -e \"iwctl\"\""
-  },
+  // the bar.jsonc min-lengths are sized for the wide desktop screens
   "cpu": {
-    "on-click": "",
-    "interval": 5,
-    "format": " {usage}%"
-    // "max-length": 10
+    "interval": 3,
+    "format": "<span color='#ff8a00' size='x-large' rise='-1pt'></span>  {usage}%",
+    "on-click": "ghostty -e btop"
   },
   "memory": {
-    "on-click": "",
     "interval": 5,
-    "format": " {used:0.1f}G/{total:0.1f}G"
-    // "max-length": 30
-  },
-  "wireplumber": {
-    "format": " {volume}%",
-    "format-muted": "󰖁 Muted",
-    // "format-source": " {source_volume}",
-    "on-click": "",
-    "scroll-step": 1
-  },
-  "wireplumber#source": {
-      "node-type": "Audio/Source",
-      "format": " {volume}%",
-      "format-muted": "  Muted",
-      "on-click": "wpctl set-volume @DEFAULT_SOURCE@ 1"
-  },
-  "custom/spotify": {
-    "exec": "$HOME/.config/waybar/scripts/spotify.sh",
-    "max-length": 33,
-    "format": " {}",
-    "on-click": "playerctl play-pause",
-    "on-double-click": "playerctl next",
-    "on-right-click": "python /home/rishabh/.config/hypr/scripts/empris.py"
-  },
-  "custom/exit": {
-    "format": "<span color='#F38BA8'>⏻</span>",
-    "on-click": "systemctl shutdown now"
+    "format": "<span color='#ff8a00' size='x-large' rise='-1pt'></span>  {used:0.1f}G",
+    "tooltip-format": "RAM {used:0.1f} / {total:0.1f} GB ({percentage}%)\nSwap {swapUsed:0.1f} / {swapTotal:0.1f} GB"
   }
 }

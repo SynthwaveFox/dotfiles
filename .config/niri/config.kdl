@@ -123,6 +123,7 @@ output "eDP-1" {
   scale 1.5
 }
 cursor {
+   xcursor-theme "Bibata-Modern-Amber"
    xcursor-size 20
    hide-after-inactive-ms 30000
 }
@@ -216,7 +217,8 @@ layout { // Set gaps around windows in logical pixels. gaps 16
         // off
 
         width 3
-        active-color "#ff8a00"
+        // Outrun sunset: orange into pink, like the wallpaper.
+        active-gradient from="#ff8a00" to="#f5559b" angle=135
         inactive-color "#585b70"
 
         // Color of the border around windows that request your attention.
@@ -264,7 +266,9 @@ layout { // Set gaps around windows in logical pixels. gaps 16
         offset x=0 y=5
 
         // You can also change the shadow color and opacity.
-        color "#0007"
+        // The focused window glows orange; others keep a plain dark shadow.
+        color "#ff8a0066"
+        inactive-color "#0007"
     }
 
     // Struts shrink the area occupied by windows, similarly to layer-shell panels.
@@ -280,6 +284,16 @@ layout { // Set gaps around windows in logical pixels. gaps 16
     }
 }
 
+workspace "scratch"
+
+window-rule {
+    match app-id=r#"^ghostty\.scratch$"#
+    open-on-workspace "scratch"
+    open-floating true
+}
+
+spawn-at-startup "spotify"
+spawn-at-startup "nemo"
 // Add lines like this to spawn processes at startup.
 // Note that running niri as a session supports xdg-desktop-autostart,
 // which may be more convenient to use.
@@ -383,8 +397,35 @@ window-rule {
       blur true
    }
 }
+// Mako popups show on your screen but are blacked out in screen shares (Discord, OBS via portal).
+layer-rule {
+   match namespace="^notifications$"
+   block-out-from "screencast"
+   geometry-corner-radius 10
+   background-effect {
+      blur true
+      xray false
+   }
+}
+// Frosted bar: waybar's background is semi-transparent so the blur shows through.
+layer-rule {
+   match namespace="^waybar$"
+   background-effect {
+      blur true
+      xray false
+   }
+}
 layer-rule {
    match namespace="^launcher$"
+   // Same orange glow as the focused window; radius matches fuzzel's default border radius.
+   geometry-corner-radius 10
+   shadow {
+      on
+      softness 30
+      spread 5
+      offset x=0 y=5
+      color "#ff8a0066"
+   }
    background-effect {
       blur true
       xray false
@@ -467,7 +508,7 @@ binds {
     Mod+Shift+J     { move-window-down; }
     Mod+Shift+K     { move-window-up; }
     Mod+Shift+L     { move-column-right; }
-
+    Mod+Space       { spawn-sh "nscratch -id ghostty.scratch -s 'ghostty --class=ghostty.scratch'"; }
     // Alternative commands that move across workspaces when reaching
     // the first or last window in a column.
     // Mod+J     { focus-window-or-workspace-down; }
