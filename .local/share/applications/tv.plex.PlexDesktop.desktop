@@ -1,0 +1,12 @@
+[Desktop Entry]
+# Local override: native Wayland draws an empty window on NVIDIA, X11 works
+Type=Application
+Name=Plex
+Comment=Plex client for desktop computers
+Exec=env QT_QPA_PLATFORM=xcb Plex
+Icon=tv.plex.PlexDesktop
+Terminal=false
+Categories=AudioVideo;Player;X-Media;
+X-Flatpak=tv.plex.PlexDesktop
+StartupWMClass=Plex
+Name[en_US]=Plex
