@@ -34,7 +34,8 @@
   },
   "mpris": {
     "format": "<span color='#ff8a00' size='larger'>{status_icon}</span>  {title} <span color='#7f849c'>·</span> {artist}",
-    "format-paused": "<span color='#7f849c'>{status_icon}  {title} · {artist}</span>",
+    // same layout as playing (larger icon) so the text doesn't shift; #mpris.paused greys it
+    "format-paused": "<span color='#7f849c' size='larger'>{status_icon}</span>  {title} <span color='#7f849c'>·</span> {artist}",
     "format-stopped": "",
     "status-icons": { "playing": "󰎆", "paused": "󰏤" },
     "title-len": 32,
