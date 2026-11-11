@@ -49,6 +49,7 @@ libxml2-legacy
 linux
 linux-firmware
 linux-headers
+loupe
 mako
 maven
 nano
@@ -56,6 +57,7 @@ network-manager-applet
 networkmanager
 niri
 noto-fonts
+noto-fonts-cjk
 noto-fonts-emoji
 npm
 ntfs-3g

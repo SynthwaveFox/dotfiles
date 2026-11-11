@@ -16,6 +16,17 @@ x-scheme-handler/discord=vesktop.desktop
 video/mp4=vlc.desktop
 video/x-matroska=vlc.desktop
 x-scheme-handler/unityhub=unityhub.desktop
+image/png=org.gnome.Loupe.desktop
+image/jpeg=org.gnome.Loupe.desktop
+image/webp=org.gnome.Loupe.desktop
+image/gif=org.gnome.Loupe.desktop
+image/bmp=org.gnome.Loupe.desktop
+image/tiff=org.gnome.Loupe.desktop
+image/svg+xml=org.gnome.Loupe.desktop
+image/avif=org.gnome.Loupe.desktop
+image/heic=org.gnome.Loupe.desktop
+image/jxl=org.gnome.Loupe.desktop
+image/x-icon=org.gnome.Loupe.desktop
 
 [Added Associations]
 x-scheme-handler/mailto=userapp-Thunderbird-KU8FY3.desktop;userapp-Thunderbird-05GOV3.desktop;

@@ -12,6 +12,7 @@ papirus-folders
 parsec-bin
 paru
 piavpn-bin
+plex-desktop
 plymouth-theme-cybernetic-git
 rkdeveloptool-git
 streamcontroller
