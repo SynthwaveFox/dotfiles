@@ -173,7 +173,11 @@ window#waybar.primary #workspaces button { padding-top: 1px; margin-top: 4px; }
 #custom-fan.high { color: #ffb347; }
 #custom-fan.off  { color: #7f849c; }
 #battery.warning:not(.charging)  { color: #ffb347; }
-#battery.critical:not(.charging) { color: #11111b; background: #f38ba8; }
+#battery.critical:not(.charging) {
+  color: #f38ba8;
+  background: rgba(243, 139, 168, 0.16);
+  border-color: #f38ba8;
+}
 
 #backlight:hover, #battery:hover,
 #temperature:hover, #custom-fan:hover {
