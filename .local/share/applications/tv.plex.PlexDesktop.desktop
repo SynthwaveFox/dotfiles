@@ -1,9 +1,11 @@
 [Desktop Entry]
 # Local override: native Wayland draws an empty window on NVIDIA, X11 works
+# --disable-gpu: the web UI showed white blocks on NVIDIA (GPU raster off alone was not enough).
+# Video still plays through mpv on the GPU; only the menus are CPU-drawn.
 Type=Application
 Name=Plex
 Comment=Plex client for desktop computers
-Exec=env QT_QPA_PLATFORM=xcb Plex
+Exec=env QT_QPA_PLATFORM=xcb QTWEBENGINE_CHROMIUM_FLAGS=--disable-gpu Plex
 Icon=tv.plex.PlexDesktop
 Terminal=false
 Categories=AudioVideo;Player;X-Media;
