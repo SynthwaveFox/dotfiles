@@ -31,7 +31,7 @@ input {
 
             // srvrkeys:none: Ctrl+Alt+F1..F12 no longer switch to a text console,
             // so clipping (Alt+F10) while holding Ctrl to crouch can't drop you
-            // to a TTY. Use Mod+Ctrl+Alt+F3 instead (bind below).
+            // to a TTY. Use Mod+Ctrl+Alt+F1..F12 instead (binds below).
             layout "us"
             options "srvrkeys:none"
         }
@@ -778,9 +778,20 @@ binds {
 
     F10 {spawn-sh "wpctl set-mute @DEFAULT_SOURCE@ toggle"; }
 
-    // Text console on purpose only: needs Super held, so game combos can't hit it.
-    // Back to the desktop is Ctrl+Alt+F1 on the console (srvrkeys only affects niri).
-    Mod+Ctrl+Alt+F3 hotkey-overlay-title="Switch to TTY 3" { spawn "sudo" "-n" "chvt" "3"; }
+    // Text consoles on purpose only: Mod+Ctrl+Alt+F1..F12 (Super held, so game combos
+    // can't hit them). The desktop is on F1; on a console, Ctrl+Alt+F1 brings you back.
+    Mod+Ctrl+Alt+F1 hotkey-overlay-title="Switch to a TTY (F1-F12)" { spawn "sudo" "-n" "chvt" "1"; }
+    Mod+Ctrl+Alt+F2 hotkey-overlay-title=null { spawn "sudo" "-n" "chvt" "2"; }
+    Mod+Ctrl+Alt+F3 hotkey-overlay-title=null { spawn "sudo" "-n" "chvt" "3"; }
+    Mod+Ctrl+Alt+F4 hotkey-overlay-title=null { spawn "sudo" "-n" "chvt" "4"; }
+    Mod+Ctrl+Alt+F5 hotkey-overlay-title=null { spawn "sudo" "-n" "chvt" "5"; }
+    Mod+Ctrl+Alt+F6 hotkey-overlay-title=null { spawn "sudo" "-n" "chvt" "6"; }
+    Mod+Ctrl+Alt+F7 hotkey-overlay-title=null { spawn "sudo" "-n" "chvt" "7"; }
+    Mod+Ctrl+Alt+F8 hotkey-overlay-title=null { spawn "sudo" "-n" "chvt" "8"; }
+    Mod+Ctrl+Alt+F9 hotkey-overlay-title=null { spawn "sudo" "-n" "chvt" "9"; }
+    Mod+Ctrl+Alt+F10 hotkey-overlay-title=null { spawn "sudo" "-n" "chvt" "10"; }
+    Mod+Ctrl+Alt+F11 hotkey-overlay-title=null { spawn "sudo" "-n" "chvt" "11"; }
+    Mod+Ctrl+Alt+F12 hotkey-overlay-title=null { spawn "sudo" "-n" "chvt" "12"; }
 
     // Clipboard history (cliphist), Windows Win+V style
     Mod+Ctrl+V hotkey-overlay-title="Clipboard History" { spawn-sh "~/.local/bin/clip-history"; }
