@@ -311,11 +311,19 @@ window-rule {
     open-maximized true
 }
 
+// Scratchpads (Mod+Space terminal, Menu Claude): open floating where you are;
+// nscratch then hides them on the "scratch" workspace and brings them back.
+// (open-on-workspace "scratch" made the first press jump focus to the Dell.)
 window-rule {
     match app-id=r#"^ghostty\.scratch$"#
-    open-on-workspace "scratch"
     open-floating true
 }
+
+window-rule {
+    match app-id=r#"^ghostty\.ai$"#
+    open-floating true
+}
+
 
 // Add lines like this to spawn processes at startup.
 // Note that running niri as a session supports xdg-desktop-autostart,
@@ -510,7 +518,8 @@ binds {
     XF86AudioLowerVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.05-"; }
     XF86AudioMute        allow-when-locked=true { spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"; }
     XF86AudioMicMute     allow-when-locked=true { spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"; }
-
+    // -m: bring the scratchpad to the focused monitor (the hidden "scratch" workspace sits on the Dell)
+    Menu { spawn-sh "nscratch -m -id ghostty.ai -s 'ghostty --class=ghostty.ai --title=ai -e claude'"; }
     // Media keys: control whatever is playing (Spotify, Brave, VLC...) via MPRIS
     XF86AudioPlay  allow-when-locked=true { spawn "playerctl" "play-pause"; }
     XF86AudioPause allow-when-locked=true { spawn "playerctl" "play-pause"; }
@@ -546,7 +555,7 @@ binds {
     Mod+Shift+J     { move-window-down; }
     Mod+Shift+K     { move-window-up; }
     Mod+Shift+L     { move-column-right; }
-    Mod+Space       { spawn-sh "nscratch -id ghostty.scratch -s 'ghostty --class=ghostty.scratch'"; }
+    Mod+Space       { spawn-sh "nscratch -m -id ghostty.scratch -s 'ghostty --class=ghostty.scratch'"; }
     // Alternative commands that move across workspaces when reaching
     // the first or last window in a column.
     // Mod+J     { focus-window-or-workspace-down; }
