@@ -1,8 +1,10 @@
 [Desktop Entry]
 # Local override: always use the Zink renderer OrcaSlicer needs on NVIDIA 555+.
 # Its own detection runs glxinfo, which fails when launched without DISPLAY (fuzzel).
+# GTK_THEME=Adwaita: Orca paints its own (dark) colours but forces white text boxes, so a
+# dark GTK theme left light text on white. Light Adwaita ignores ~/.config/gtk-3.0/gtk.css colours.
 Name=OrcaSlicer
-Exec=env __GLX_VENDOR_LIBRARY_NAME=mesa __EGL_VENDOR_LIBRARY_FILENAMES=/usr/share/glvnd/egl_vendor.d/50_mesa.json MESA_LOADER_DRIVER_OVERRIDE=zink GALLIUM_DRIVER=zink WEBKIT_DISABLE_DMABUF_RENDERER=1 /opt/orca-slicer/AppRun %U
+Exec=env GTK_THEME=Adwaita __GLX_VENDOR_LIBRARY_NAME=mesa __EGL_VENDOR_LIBRARY_FILENAMES=/usr/share/glvnd/egl_vendor.d/50_mesa.json MESA_LOADER_DRIVER_OVERRIDE=zink GALLIUM_DRIVER=zink WEBKIT_DISABLE_DMABUF_RENDERER=1 /opt/orca-slicer/AppRun %U
 Icon=OrcaSlicer
 Type=Application
 PrefersNonDefaultGPU=true
