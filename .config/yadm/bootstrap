@@ -7,6 +7,7 @@ sudo install -Dm644 "$DOT/etc/greetd/config.toml"        /etc/greetd/config.toml
 sudo install -Dm755 "$DOT/usr-local-bin/session-chooser" /usr/local/bin/session-chooser
 sudo install -Dm755 "$DOT/usr-local-bin/side-monitors"   /usr/local/bin/side-monitors
 sudo install -Dm440 "$DOT/etc/sudoers.d/side-monitors"   /etc/sudoers.d/side-monitors
+sudo install -Dm440 "$DOT/etc/sudoers.d/chvt"            /etc/sudoers.d/chvt
 sudo install -Dm644 "$DOT/etc/vconsole.conf"             /etc/vconsole.conf
 sudo install -Dm644 "$DOT/etc/modprobe.d/no-bluetooth.conf" /etc/modprobe.d/no-bluetooth.conf
 sudo install -Dm644 "$DOT/etc/pacman.d/hooks/nvidia.hook"   /etc/pacman.d/hooks/nvidia.hook

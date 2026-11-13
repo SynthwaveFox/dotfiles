@@ -1,0 +1,3 @@
+#!/bin/sh
+# Clipboard history picker (Mod+Ctrl+V): pick an entry in fuzzel, it goes back on the clipboard.
+cliphist list | fuzzel --dmenu --prompt "clipboard  " --width 70 | cliphist decode | wl-copy

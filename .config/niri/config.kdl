@@ -31,7 +31,7 @@ input {
 
             // srvrkeys:none: Ctrl+Alt+F1..F12 no longer switch to a text console,
             // so clipping (Alt+F10) while holding Ctrl to crouch can't drop you
-            // to a TTY. Reach a TTY with `sudo chvt 3` if ever needed.
+            // to a TTY. Use Mod+Ctrl+Alt+F3 instead (bind below).
             layout "us"
             options "srvrkeys:none"
         }
@@ -330,6 +330,7 @@ spawn-at-startup "/usr/lib/polkit-kde-authentication-agent-1"
 spawn-at-startup "solaar" "--window=hide"
 spawn-at-startup "discord"
 spawn-at-startup "sonora"
+spawn-at-startup "wl-paste" "--watch" "cliphist" "store"
 spawn-at-startup "ghostty" "--config-file=/home/phoenix/.config/ghostty/mct" "--class=fennia.mct" "-e" "mct"
 spawn-sh-at-startup "swaybg -i ~/.wallpapers/Outrun1440.png -m fill"
 
@@ -392,7 +393,7 @@ window-rule {
 
 // Open apps maximized by default
 window-rule {
-	match app-id="brave"
+	match app-id="(?i)brave"  // "brave" on Wayland, "Brave-browser" under X11
 	match app-id="discord"
 	match app-id="Thunderbird"
 	match app-id="sonora"
@@ -776,6 +777,13 @@ binds {
     Mod+Escape { spawn "ghostty" "-e" "btop"; }
 
     F10 {spawn-sh "wpctl set-mute @DEFAULT_SOURCE@ toggle"; }
+
+    // Text console on purpose only: needs Super held, so game combos can't hit it.
+    // Back to the desktop is Ctrl+Alt+F1 on the console (srvrkeys only affects niri).
+    Mod+Ctrl+Alt+F3 hotkey-overlay-title="Switch to TTY 3" { spawn "sudo" "-n" "chvt" "3"; }
+
+    // Clipboard history (cliphist), Windows Win+V style
+    Mod+Ctrl+V hotkey-overlay-title="Clipboard History" { spawn-sh "~/.local/bin/clip-history"; }
 }
 
 // No middle-click paste: turn off the "primary selection" clipboard entirely.

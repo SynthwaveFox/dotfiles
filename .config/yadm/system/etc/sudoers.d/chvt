@@ -1,0 +1,2 @@
+# Lets the niri bind (Mod+Ctrl+Alt+F3) switch to a text console without a password.
+phoenix ALL=(root) NOPASSWD: /usr/bin/chvt
