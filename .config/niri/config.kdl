@@ -466,8 +466,17 @@ layer-rule {
       xray false
    }
 }
+// Fuzzel: same 12 px corners and orange glow as a focused window
 layer-rule {
    match namespace="^launcher$"
+   geometry-corner-radius 12
+   shadow {
+      on
+      softness 30
+      spread 5
+      offset x=0 y=5
+      color "#ff8a0066"
+   }
    background-effect {
       blur true
       xray false
