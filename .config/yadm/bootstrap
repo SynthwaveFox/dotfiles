@@ -13,6 +13,8 @@ sudo install -Dm644 "$DOT/etc/modprobe.d/no-bluetooth.conf" /etc/modprobe.d/no-b
 sudo install -Dm644 "$DOT/etc/pacman.d/hooks/nvidia.hook"   /etc/pacman.d/hooks/nvidia.hook
 sudo install -Dm644 -t /etc/udev/rules.d "$DOT"/etc/udev/rules.d/*.rules
 sudo systemctl enable greetd
+# audio group: keeps the mic/headset working while switched to a text console
+sudo usermod -aG audio "$USER"
 
 # packages (repo first; AUR ones will error here, that's fine)
 sudo pacman -S --needed --noconfirm - < "$DOT/packages.txt" || true
