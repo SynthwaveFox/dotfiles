@@ -402,7 +402,7 @@ window-rule {
 
 // Open apps maximized by default
 window-rule {
-	match app-id="(?i)brave"  // "brave" on Wayland, "Brave-browser" under X11
+	// match app-id="(?i)brave"  // "brave" on Wayland, "Brave-browser" under X11
 	match app-id="discord"
 	match app-id="Thunderbird"
 	match app-id="sonora"
