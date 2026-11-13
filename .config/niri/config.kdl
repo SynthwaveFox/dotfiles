@@ -311,7 +311,7 @@ window-rule {
     open-maximized true
 }
 
-// Scratchpads (Mod+Space terminal, Menu Claude): open floating where you are;
+// Scratchpads (Mod+Space terminal, Menu Claude): open where you are;
 // nscratch then hides them on the "scratch" workspace and brings them back.
 // (open-on-workspace "scratch" made the first press jump focus to the Dell.)
 window-rule {
@@ -319,9 +319,10 @@ window-rule {
     open-floating true
 }
 
+// The Claude scratchpad tiles as a normal column, so Mod+arrows move in and out of it.
 window-rule {
     match app-id=r#"^ghostty\.ai$"#
-    open-floating true
+    open-floating false
 }
 
 
