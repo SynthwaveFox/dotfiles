@@ -292,6 +292,12 @@ window-rule {
     open-floating true
 }
 
+window-rule {
+    match app-id=r#"^ghostty\.ai$"#
+    open-on-workspace "scratch"
+    open-floating true
+}
+
 spawn-at-startup "spotify"
 spawn-at-startup "nemo"
 // Add lines like this to spawn processes at startup.
@@ -477,6 +483,7 @@ binds {
     XF86AudioLowerVolume allow-when-locked=true { spawn-sh "wpctl set-volume @DEFAULT_AUDIO_SINK@ 0.1-"; }
     XF86AudioMute        allow-when-locked=true { spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"; }
     XF86AudioMicMute     allow-when-locked=true { spawn-sh "wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"; }
+    XF86AudioMedia { spawn-sh "nscratch -id ghostty.ai -s 'ghostty --class=ghostty.ai --title=ai -e claude'"; }
 
     // Example brightness key mappings for brightnessctl.
     // You can use regular spawn with multiple arguments too (to avoid going through "sh"),
