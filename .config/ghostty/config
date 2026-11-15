@@ -54,3 +54,8 @@ clipboard-paste-protection = false
 
 # Selecting text doesn't touch the clipboard; copy with Ctrl+Shift+C
 copy-on-select = false
+
+# SSH: copy Ghostty's terminfo to a host on first connect (cached afterwards),
+# and fall back to TERM=xterm-256color where that's not possible. Fixes
+# "Error opening terminal: xterm-ghostty" in nano/htop/etc. on remote machines.
+shell-integration-features = ssh-terminfo,ssh-env
