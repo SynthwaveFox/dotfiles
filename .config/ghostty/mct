@@ -31,3 +31,8 @@ window-decoration = false
 confirm-close-surface = false
 # under niri leave this off (the window rule maximizes it); the boot path
 # passes --fullscreen and --font-size on the command line instead
+
+# mct runs ssh itself (not through the shell), so Ghostty's ssh-terminfo
+# integration can't help. Identify as xterm-256color, which every host knows,
+# so nano/htop/etc. work on any machine mct connects to.
+term = xterm-256color
