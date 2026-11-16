@@ -1,0 +1,11 @@
+[Unit]
+Description=Link HD60 S capture audio into Discord screen share
+After=pipewire.service wireplumber.service
+
+[Service]
+ExecStart=%h/.local/bin/discord-capture-link
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

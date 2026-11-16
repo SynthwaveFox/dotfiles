@@ -1,0 +1,89 @@
+#!/usr/bin/env python3
+"""Feed the HD60 S capture audio into Discord's screen-share audio.
+
+Discord's Linux client only captures audio that the shared app plays itself.
+Capture card audio reaches the headset through a PipeWire loopback
+(hd60s-obs), so Discord never hears it. This watches for Discord's
+"discord_capture" streams and links the hd60s source into one of them
+(only one, or the audio would be doubled).
+
+Runs as the discord-capture-link user service.
+"""
+import json
+import subprocess
+import time
+
+SOURCE = "hd60s"
+CAPTURE = "discord_capture"
+POLL = 2
+
+
+def graph():
+    out = subprocess.run(["pw-dump"], capture_output=True, text=True).stdout
+    try:
+        return json.loads(out or "[]")
+    except json.JSONDecodeError:
+        return []
+
+
+def ports_by_node(objs):
+    nodes, ports, links = {}, {}, set()
+    for o in objs:
+        t, info = o.get("type", ""), o.get("info") or {}
+        props = info.get("props") or {}
+        if t.endswith(":Node"):
+            nodes[o["id"]] = props
+        elif t.endswith(":Port"):
+            ports.setdefault(props.get("node.id"), []).append(
+                (o["id"], info.get("direction"), props.get("audio.channel") or props.get("port.name", ""))
+            )
+        elif t.endswith(":Link"):
+            links.add((info.get("output-port-id"), info.get("input-port-id")))
+    return nodes, ports, links
+
+
+def chan(name):
+    name = name.upper()
+    for c in ("FL", "FR", "MONO"):
+        if name.endswith(c):
+            return c
+    return name
+
+
+def tick():
+    nodes, ports, links = ports_by_node(graph())
+    src = next((i for i, p in nodes.items() if p.get("node.name") == SOURCE
+                and p.get("media.class") == "Audio/Source"), None)
+    caps = sorted(i for i, p in nodes.items() if p.get("node.name") == CAPTURE
+                  and p.get("media.class") == "Stream/Input/Audio")
+    if src is None or not caps:
+        return
+    outs = {chan(n): pid for pid, d, n in ports.get(src, []) if d == "output"}
+    # Already feeding one of Discord's capture streams? Then nothing to do.
+    for c in caps:
+        ins = [pid for pid, d, _ in ports.get(c, []) if d == "input"]
+        if any((o, i) in links for o in outs.values() for i in ins):
+            return
+    target = caps[0]
+    ins = {chan(n): pid for pid, d, n in ports.get(target, []) if d == "input"}
+    if not ins:
+        return
+    pairs = []
+    if "MONO" in ins:
+        pairs = [(outs[c], ins["MONO"]) for c in ("FL", "FR") if c in outs]
+    else:
+        pairs = [(outs[c], ins[c]) for c in ("FL", "FR") if c in outs and c in ins]
+    for o, i in pairs:
+        if (o, i) not in links:
+            subprocess.run(["pw-link", str(o), str(i)], capture_output=True)
+    if pairs:
+        print(f"linked {SOURCE} -> {CAPTURE} node {target}", flush=True)
+
+
+if __name__ == "__main__":
+    while True:
+        try:
+            tick()
+        except Exception as e:  # keep the watcher alive through graph churn
+            print(f"error: {e}", flush=True)
+        time.sleep(POLL)
