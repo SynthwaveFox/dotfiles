@@ -15,7 +15,7 @@ import time
 
 SOURCE = "hd60s"
 CAPTURE = "discord_capture"
-POLL = 2
+POLL = 0.5
 
 
 def graph():
