@@ -1,4 +1,5 @@
 alcom-bin
+arduino-ide-bin
 bibata-cursor-theme-bin
 brave-bin
 claude-code
